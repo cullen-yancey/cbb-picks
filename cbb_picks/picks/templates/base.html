@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CBB Picks</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <div class="container mx-auto mt-8">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
+
+<nav class="py-2 px-4 bg-blue-500">
+    <ul class="flex justify-center space-x-4">
+        <li><a href="{% url 'upcoming-games' %}" class="text-white font-semibold">Upcoming Games</a></li>
+        <li><a href="{% url 'leaderboard' %}" class="text-white font-semibold">Leaderboard</a></li>
+    </ul>
+</nav>
