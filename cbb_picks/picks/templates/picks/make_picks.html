@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="text-2xl font-bold mb-4">Make Your Picks</h1>
+
+    <form method="POST" id="make-picks-form">
+        {% csrf_token %}
+
+        {% for game in upcoming_games %}
+            <div class="game-container {% if game.game_time <= now %}locked{% endif %}" data-game-id="{{ game.id }}">
+                <h3 class="text-lg font-semibold">{{ game.home_team.name }} vs {{ game.away_team.name }} - 
+                    <span class="text-sm text-gray-500">{{ game.game_time|date:"M d, Y H:i" }}</span>
+                </h3>
+
+                {% if game.game_time <= now %}
+                    <p class="text-red-500">This game is locked</p>
+                {% else %}
+                    <select name="pick_{{ game.id }}" id="game_{{ game.id }}" class="team-select">
+                        <option value="">Select a team</option>
+                        <option value="{{ game.home_team.id }}">{{ game.home_team.name }}</option>
+                        <option value="{{ game.away_team.id }}">{{ game.away_team.name }}</option>
+                    </select>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" id="submit-picks">Submit Picks</button>
+    </form>
+
+    <script>
+        // JavaScript to dynamically lock games and disable selections based on the game time
+        const now = new Date();  // Get the current time
+
+        // Lock games that have already started
+        document.querySelectorAll('.game-container').forEach(container => {
+            const gameId = container.dataset.gameId;
+            const gameTime = new Date(container.querySelector('.game-time').innerText); // Get the game time
+            
+            if (gameTime <= now) {
+                container.classList.add('locked');
+                const selectBox = container.querySelector('select');
+                selectBox.disabled = true;  // Disable the team selection for locked games
+            }
+        });
+
+        // Handle form submission (collect all picks)
+        document.getElementById('make-picks-form').addEventListener('submit', function (e) {
+            e.preventDefault();  // Prevent default form submission
+
+            const formData = new FormData(this);
+            const picks = {};
+
+            formData.forEach((value, key) => {
+                if (key.startsWith('pick_')) {
+                    const gameId = key.replace('pick_', '');
+                    picks[gameId] = value;
+                }
+            });
+
+            // Send picks to the backend via AJAX (or you could use a regular form submission)
+            fetch('/submit_picks/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(picks),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Picks successfully submitted!');
+                    window.location.href = '/leaderboard/';
+                } else {
+                    alert('There was an error submitting your picks.');
+                }
+            });
+        });
+    </script>
+{% endblock %}

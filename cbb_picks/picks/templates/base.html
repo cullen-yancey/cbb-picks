@@ -2,20 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CBB Picks</title>
+    <title>College Basketball Pick'em Picks</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
-    <div class="container mx-auto mt-8">
-        {% block content %}
-        {% endblock %}
-    </div>
-</body>
-</html>
-
 <nav class="py-2 px-4 bg-blue-500">
     <ul class="flex justify-center space-x-4">
         <li><a href="{% url 'upcoming-games' %}" class="text-white font-semibold">Upcoming Games</a></li>
         <li><a href="{% url 'leaderboard' %}" class="text-white font-semibold">Leaderboard</a></li>
+        <li><a href="{% url 'make-picks' %}" class="text-white font-semibold">Picks</a></li>
     </ul>
 </nav>
+<head><title>Basketball Picks</title></head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    {% if messages %}
+    <div class="p-4">
+        {% for message in messages %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-2">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="container mx-auto mt-8">
+    </div>
+    {% if user.is_authenticated %}
+    <p>Welcome, {{ user.username }} | <a href="{% url 'logout' %}">Logout</a></p>
+    {% else %}
+    <p><a href="{% url 'login' %}">Login</a></p>
+    {% endif %}
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>

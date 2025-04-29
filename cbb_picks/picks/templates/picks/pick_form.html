@@ -5,12 +5,55 @@
     <h2 class="text-2xl font-bold mb-4 text-center">🏀 Make Your Pick</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <div class="flex justify-center mt-6">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Submit Pick
-            </button>
+        {{ form.non_field_errors }}
+    
+        <div class="mb-4">
+            <label class="block text-gray-700">Game</label>
+            {{ form.game }}
         </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700">Team</label>
+            <select id="id_team" name="team" required>
+                <option value="">Select a team</option> <!-- Placeholder -->
+            </select>
+        </div>
+    
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
     </form>
+    
+    <script>
+        const gamesData = {
+            {% for game in form.fields.game.queryset %}
+                "{{ game.id }}": [
+                    {"id": "{{ game.home_team.id }}", "name": "{{ game.home_team.name }}"},
+                    {"id": "{{ game.away_team.id }}", "name": "{{ game.away_team.name }}"},
+                ],
+            {% endfor %}
+        };
+    
+        const gameSelect = document.getElementById("id_game");
+        const teamSelect = document.getElementById("id_team");
+    
+        function updateTeamOptions(gameId) {
+            const teams = gamesData[gameId] || [];
+            teamSelect.innerHTML = "";
+            teams.forEach(team => {
+                const option = document.createElement("option");
+                option.value = team.id;
+                option.textContent = team.name;
+                teamSelect.appendChild(option);
+            });
+        }
+    
+        gameSelect.addEventListener("change", (e) => {
+            updateTeamOptions(e.target.value);
+        });
+    
+        // Prepopulate teams if a game is already selected
+        if (gameSelect.value) {
+            updateTeamOptions(gameSelect.value);
+        }
+    </script>    
 </div>
 {% endblock %}
