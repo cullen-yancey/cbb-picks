@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load pick_extras %}
+
+{% block content %}
+
+{% if messages %}
+  <div class="max-w-2xl mx-auto mt-4">
+    {% for message in messages %}
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded relative" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="max-w-4xl mx-auto mt-8">
+  <h1 class="text-3xl font-bold mb-6 text-center">My Picks</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {% for game in games %}
+      <div class="bg-white rounded-xl shadow p-4 mb-6">
+        <div class="text-center font-semibold mb-2">
+          {{ game.home_team }} vs {{ game.away_team }}
+        </div>
+
+        <div class="flex justify-center space-x-8">
+          {% for team in game.teams %}
+            <label class="relative">
+              <input
+                type="radio"
+                name="pick_{{ game.id }}"
+                value="{{ team.id }}"
+                class="hidden peer"
+                {% if picks|get_item:game.id == team.id %}checked{% endif %}
+              />
+              <div class="cursor-pointer border-2 rounded-lg p-2 w-32 h-32 flex items-center justify-center
+                          peer-checked:border-blue-500 peer-checked:bg-blue-100 peer-checked:ring-4 peer-checked:ring-blue-200 relative">
+                <img src="{{ team.logo_url }}" alt="{{ team.name }}" class="max-h-16">
+
+                <!-- ✅ checkmark overlay -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                     class="hidden peer-checked:block w-6 h-6 text-blue-600 absolute top-2 right-2">
+                  <path fill="currentColor" d="M9 16.17l-3.88-3.88L4 13.41 9 18.41 20 7.41 18.59 6l-9.59 9.59z"/>
+                </svg>
+              </div>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="text-center mt-6">
+      <button type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">
+        Save Picks
+      </button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

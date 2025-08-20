@@ -37,6 +37,7 @@ SCHOOLS = [
     ('Texas Tech Red Raiders', 'Texas Tech Red Raiders'),
     ('West Virginia Mountaineers', 'West Virginia Mountaineers'),
     ('TCU Horned Frogs', 'TCU Horned Frogs'),
+    ('Houston Cougars', 'Houston Cougars'),
     
     # Southeastern Conference (SEC)
     ('Kentucky Wildcats', 'Kentucky Wildcats'),
@@ -50,7 +51,10 @@ SCHOOLS = [
     ('Missouri Tigers', 'Missouri Tigers'),
     ('LSU Tigers', 'LSU Tigers'),
 ]
-
+CONFERENCES = [
+    ('Atlantic Coast Conference', 'ACC'),
+    ('Southeastern Conference', 'SEC'),
+]
 
 class Team(models.Model):
     name = models.CharField(
@@ -60,7 +64,15 @@ class Team(models.Model):
         null=True,
         help_text="Select if located in the United States."
     )
+    logo_url = models.URLField(blank=True, null=True)
 
+    # conference = models.CharField(
+    #     max_length=100,
+    #     choices=CONFERENCES,
+    #     blank=True,
+    #     null=True,
+    #     # help_text=""
+    # )
     def __str__(self):
         return self.name
 

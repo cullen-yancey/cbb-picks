@@ -10,7 +10,7 @@
                 <p class="text-gray-600">{{ game.location.city }}, {{ game.location.state|default:'' }} {{ game.location.country|default:'' }}</p>
                 <p class="text-gray-500 mt-2">Date: {{ game.game_time }}</p>
                 <p class="text-sm text-gray-500">* All game times are Pacific Time (PT)</p>
-                <a href="{% url 'make-pick' %}" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center">Make a Pick</a>
+                <a href="{% url 'my-picks' %}" class="mt-4 inline-block bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center">Make a Pick</a>
             </div>
         {% endfor %}
     </div>

@@ -9,6 +9,9 @@ from django.utils import timezone
 from django.contrib import messages
 from django.views.generic import UpdateView
 from django.http import HttpResponseRedirect
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
 
 class PickUpdateView(UpdateView):
     model = Pick
@@ -119,3 +122,71 @@ def make_picks(request):
         'upcoming_games': upcoming_games,
     }
     return render(request, 'picks/make_picks.html', context)
+
+@login_required
+def my_picks(request):
+    upcoming_games = Game.objects.filter(game_time__gt=timezone.now()).order_by('game_time')
+    user_picks = Pick.objects.filter(user=request.user)
+    picks_dict = {pick.game_id: pick.team_id for pick in user_picks}
+
+    for game in upcoming_games:
+        game.teams = [game.home_team, game.away_team]
+    
+    if request.method == 'POST':
+        # Save logic here
+        messages.success(request, "Your picks have been saved.")
+        return redirect('my-picks')  # Prevent resubmission on refresh
+
+
+    return render(request, 'picks/my_picks.html', {
+        'games': upcoming_games,
+        'picks': picks_dict,
+    })
+
+@csrf_exempt
+def update_picks(request):
+    if request.method == 'POST':
+        # Get the picks from the form
+        picks_data = request.POST
+
+        for game_id, team_id in picks_data.items():
+            if game_id.startswith('pick_'):  # We're only concerned with the pick fields
+                game = Game.objects.get(id=game_id.replace('pick_', ''))
+                team = game.home_team if game.home_team.id == int(team_id) else game.away_team
+                user = request.user
+
+                # Check if the user has already made a pick for this game
+                pick, created = Pick.objects.get_or_create(user=user, game=game)
+
+                # Update the pick
+                pick.team = team
+                pick.save()
+
+        return redirect('my_picks')  # Redirect back to the picks page
+
+@login_required
+def submit_picks(request):
+    if request.method == 'POST':
+        for key, value in request.POST.items():
+            if key.startswith('pick_') and value:
+                try:
+                    game_id = int(key.split('_')[1])
+                    team_id = int(value)
+                    game = Game.objects.get(id=game_id)
+
+                    # Prevent changes to past games
+                    if game.game_time <= timezone.now():
+                        continue
+
+                    team = Team.objects.get(id=team_id)
+
+                    pick, created = Pick.objects.update_or_create(
+                        user=request.user,
+                        game=game,
+                        defaults={'team': team}
+                    )
+                except (ValueError, Game.DoesNotExist, Team.DoesNotExist):
+                    continue
+        return redirect('my-picks')
+    else:
+        return redirect('my-picks')
