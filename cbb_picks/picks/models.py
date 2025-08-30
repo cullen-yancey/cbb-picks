@@ -3,76 +3,28 @@ from django.contrib.auth.models import User
 
 # Classes to add: Venue (Game/venue)
 
-SCHOOLS = [
-    # Atlantic Coast Conference (ACC)
-    ('Duke Blue Devils', 'Duke Blue Devils'),
-    ('North Carolina Tar Heels', 'North Carolina Tar Heels'),
-    ('Syracuse Orange', 'Syracuse Orange'),
-    ('Florida State Seminoles', 'Florida State Seminoles'),
-    ('Louisville Cardinals', 'Louisville Cardinals'),
-    ('Virginia Cavaliers', 'Virginia Cavaliers'),
-    ('Miami Hurricanes', 'Miami Hurricanes'),
-    ('Clemson Tigers', 'Clemson Tigers'),
-    ('Virginia Tech Hokies', 'Virginia Tech Hokies'),
-    ('NC State Wolfpack', 'NC State Wolfpack'),
-    
-    # Big Ten Conference
-    ('Michigan Wolverines', 'Michigan Wolverines'),
-    ('Indiana Hoosiers', 'Indiana Hoosiers'),
-    ('Ohio State Buckeyes', 'Ohio State Buckeyes'),
-    ('Wisconsin Badgers', 'Wisconsin Badgers'),
-    ('Purdue Boilermakers', 'Purdue Boilermakers'),
-    ('Michigan State Spartans', 'Michigan State Spartans'),
-    ('Minnesota Golden Gophers', 'Minnesota Golden Gophers'),
-    ('Maryland Terrapins', 'Maryland Terrapins'),
-    ('Illinois Fighting Illini', 'Illinois Fighting Illini'),
-    ('Iowa Hawkeyes', 'Iowa Hawkeyes'),
-    
-    # Big 12 Conference
-    ('Kansas Jayhawks', 'Kansas Jayhawks'),
-    ('Baylor Bears', 'Baylor Bears'),
-    ('Texas Longhorns', 'Texas Longhorns'),
-    ('Oklahoma Sooners', 'Oklahoma Sooners'),
-    ('Kansas State Wildcats', 'Kansas State Wildcats'),
-    ('Texas Tech Red Raiders', 'Texas Tech Red Raiders'),
-    ('West Virginia Mountaineers', 'West Virginia Mountaineers'),
-    ('TCU Horned Frogs', 'TCU Horned Frogs'),
-    ('Houston Cougars', 'Houston Cougars'),
-    
-    # Southeastern Conference (SEC)
-    ('Kentucky Wildcats', 'Kentucky Wildcats'),
-    ('Florida Gators', 'Florida Gators'),
-    ('Auburn Tigers', 'Auburn Tigers'),
-    ('Alabama Crimson Tide', 'Alabama Crimson Tide'),
-    ('Tennessee Volunteers', 'Tennessee Volunteers'),
-    ('Arkansas Razorbacks', 'Arkansas Razorbacks'),
-    ('Mississippi State Bulldogs', 'Mississippi State Bulldogs'),
-    ('South Carolina Gamecocks', 'South Carolina Gamecocks'),
-    ('Missouri Tigers', 'Missouri Tigers'),
-    ('LSU Tigers', 'LSU Tigers'),
-]
-CONFERENCES = [
-    ('Atlantic Coast Conference', 'ACC'),
-    ('Southeastern Conference', 'SEC'),
-]
+class Conference(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    blank=True
+    null=True
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
 
 class Team(models.Model):
-    name = models.CharField(
-        max_length=100,
-        choices=SCHOOLS,
-        blank=True,
-        null=True,
-        help_text="Select if located in the United States."
-    )
-    logo_url = models.URLField(blank=True, null=True)
+    name = models.CharField(max_length=100, unique=True)
+    conference = models.ForeignKey(Conference, on_delete=models.CASCADE, related_name="teams")
+    logo_url = models.URLField(blank=True, null=True)  # optional field for logos later
+    blank=True
+    null=True
 
-    # conference = models.CharField(
-    #     max_length=100,
-    #     choices=CONFERENCES,
-    #     blank=True,
-    #     null=True,
-    #     # help_text=""
-    # )
+    class Meta:
+        ordering = ["name"]
+
     def __str__(self):
         return self.name
 
